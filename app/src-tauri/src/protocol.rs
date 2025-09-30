@@ -212,3 +212,28 @@ mod tests {
         assert_eq!(response.headers().get(ACCESS_CONTROL_ALLOW_ORIGIN).unwrap(), "*");
     }
 }
+
+fn resolve_namespace_and_key(decoded_path: &str, expected_host: &str) -> (String, String) {
+    let expected_host_with_slash = format!("{expected_host}/");
+    let mut remainder = decoded_path.trim_start_matches('/');
+
+    if let Some(stripped) = remainder.strip_prefix("asset://") {
+        remainder = stripped;
+    }
+
+    if let Some(stripped) = remainder.strip_prefix("//") {
+        remainder = stripped;
+    }
+
+    if let Some(stripped) = remainder.strip_prefix(&expected_host_with_slash) {
+        remainder = stripped;
+    } else if let Some(stripped) = remainder.strip_prefix("localhost/") {
+        remainder = stripped;
+    }
+
+    remainder = remainder.trim_start_matches('/');
+    let mut segments = remainder.splitn(2, '/');
+    let namespace = segments.next().unwrap_or_default().to_string();
+    let key = segments.next().unwrap_or_default().to_string();
+    (namespace, key)
+}
