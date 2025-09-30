@@ -1,0 +1,14 @@
+{
+  "name": "local-comic-reader-monorepo",
+  "version": "0.1.0",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "tauri": "pnpm --filter app run tauri",
+    "dev": "pnpm tauri dev",
+    "build": "pnpm tauri build",
+    "lint": "pnpm --filter ui lint",
+    "test:e2e": "pnpm --filter e2e test",
+    "test:e2e:manual": "pnpm --filter e2e exec playwright test -c playwright.no-server.config.ts"
+  }
+}

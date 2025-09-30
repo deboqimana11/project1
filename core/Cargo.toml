@@ -1,0 +1,24 @@
+[package]
+name = "reader-core"
+version = "0.1.0"
+edition = "2024"
+
+[dependencies]
+anyhow = { workspace = true }
+thiserror = { workspace = true }
+tracing = { workspace = true }
+tracing-subscriber = { version = "0.3", default-features = false, features = ["fmt", "std", "env-filter", "time"] }
+tracing-appender = "0.2"
+tracing-log = "0.2"
+log = "0.4"
+parking_lot = "0.12"
+zip = { version = "0.6", default-features = false, features = ["deflate"] }
+image = { version = "0.25", default-features = false, features = ["png", "jpeg", "gif", "webp"] }
+moxcms = { version = "0.7", default-features = false }
+fast_image_resize = "5.3.0"
+blake3 = "1"
+tempfile = "3"
+serde = { version = "1", features = ["derive"] }
+serde_json = "1"
+directories = "5"
+hashlink = "0.8"

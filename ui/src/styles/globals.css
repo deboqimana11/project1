@@ -1,0 +1,72 @@
+:root {
+  color-scheme: light;
+  font-family: 'Inter', 'Noto Sans SC', 'PingFang SC', 'Microsoft YaHei', system-ui, -apple-system,
+    BlinkMacSystemFont, 'Segoe UI', sans-serif;
+  background-color: var(--bg);
+  color: var(--text);
+  text-rendering: optimizeLegibility;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+
+  /* Design tokens */
+  --bg: oklch(0.98 0.01 255);
+  --surface: oklch(0.97 0.006 255);
+  --surface-2: oklch(0.96 0.006 255 / 0.8);
+  --border: oklch(0.88 0.02 255);
+  --text: oklch(0.21 0.02 255);
+  --muted: oklch(0.55 0.01 255);
+  --accent: oklch(0.67 0.12 250);
+  --accent-2: oklch(0.72 0.10 220);
+  --success: oklch(0.72 0.12 145);
+  --warning: oklch(0.78 0.13 85);
+  --danger: oklch(0.62 0.18 25);
+  --shadow: 0 6px 30px rgba(0, 0, 0, 0.06);
+  --radius-lg: 20px;
+  --radius-md: 12px;
+  --radius-sm: 8px;
+  --blur-md: 12px;
+  --blur-lg: 16px;
+  --ease: cubic-bezier(.2, .8, .2, 1);
+  --dur-fast: 120ms;
+  --dur-mid: 180ms;
+  --dur-slow: 260ms;
+}
+
+:root.dark {
+  color-scheme: dark;
+  --bg: oklch(0.14 0.01 255);
+  --surface: oklch(0.16 0.01 255);
+  --surface-2: oklch(0.18 0.02 255 / 0.7);
+  --border: oklch(0.32 0.03 255);
+  --text: oklch(0.92 0.02 255);
+  --muted: oklch(0.70 0.01 255);
+  --accent: oklch(0.70 0.14 240);
+  --accent-2: oklch(0.75 0.12 220);
+  --shadow: 0 10px 40px rgba(0, 0, 0, 0.35);
+}
+
+*, *::before, *::after {
+  box-sizing: border-box;
+}
+
+body {
+  margin: 0;
+  min-height: 100vh;
+  background-color: var(--bg);
+  color: var(--text);
+  transition: background-color var(--dur-mid) var(--ease),
+    color var(--dur-mid) var(--ease);
+}
+
+a {
+  color: inherit;
+  text-decoration: none;
+}
+
+button, input, textarea {
+  font: inherit;
+}
+
+::selection {
+  background: color-mix(in oklch, var(--accent) 30%, transparent);
+}

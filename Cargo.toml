@@ -1,0 +1,15 @@
+[workspace]
+members = [
+  "core",
+  "app/src-tauri"
+]
+resolver = "2"
+
+[workspace.package]
+edition = "2024"
+version = "0.1.0"
+
+[workspace.dependencies]
+anyhow = "1"
+thiserror = "1"
+tracing = "0.1"

@@ -1,0 +1,4 @@
+packages:
+  - app
+  - ui
+  - e2e
