@@ -74,11 +74,6 @@ impl ImageCache {
         Ok(())
     }
 
-    pub fn path_for_key(&self, key: &str) -> std::path::PathBuf {
-        let image_key = ImageKey::new(key.to_string());
-        self.disk.path_for(&image_key)
-    }
-
     pub fn fetch(&self, key: &str) -> Result<Option<CachedImage>, String> {
         let image_key = ImageKey::new(key.to_string());
         match self.disk.read(&image_key).map_err(|err| err.to_string())? {
