@@ -1,7 +1,7 @@
 use std::sync::Arc;
 
 use tauri::Runtime;
-use tauri::http::header::{CONTENT_TYPE, HeaderValue};
+use tauri::http::header::{ACCESS_CONTROL_ALLOW_ORIGIN, CONTENT_TYPE, HeaderValue};
 use tauri::http::{Request, Response, StatusCode};
 
 use crate::image_cache::ImageCache;
@@ -36,15 +36,8 @@ fn handle_request(request: Request<Vec<u8>>, cache: Arc<ImageCache>) -> Response
         .decode_utf8()
         .unwrap_or_else(|_| raw_path.into())
         .to_string();
-    let mut path_segments = decoded_path.splitn(2, '/');
 
-    let (namespace, key) = if !host.is_empty() && host != "localhost" && host != expected_host {
-        (host.clone(), path_segments.next().unwrap_or_default().to_string())
-    } else {
-        let ns = path_segments.next().unwrap_or_default().to_string();
-        let file_key = path_segments.next().unwrap_or_default().to_string();
-        (ns, file_key)
-    };
+    let (namespace, key) = resolve_namespace_and_key(&decoded_path, &expected_host);
 
     println!("[protocol] resolved namespace={}, key={}", namespace, key);
 
@@ -58,6 +51,9 @@ fn handle_request(request: Request<Vec<u8>>, cache: Arc<ImageCache>) -> Response
         }
         key
     } else {
+        if key.is_empty() {
+            return not_found("Missing key");
+        }
         if host != expected_host {
             return not_found("Unsupported host");
         }
@@ -81,9 +77,14 @@ fn handle_request(request: Request<Vec<u8>>, cache: Arc<ImageCache>) -> Response
 fn success_response(body: Vec<u8>, mimetype: &str) -> Response<Vec<u8>> {
     let ct = HeaderValue::from_str(mimetype)
         .unwrap_or_else(|_| HeaderValue::from_static("application/octet-stream"));
-    Response::builder().status(StatusCode::OK).header(CONTENT_TYPE, ct).body(body).unwrap_or_else(
-        |_| Response::builder().status(StatusCode::INTERNAL_SERVER_ERROR).body(Vec::new()).unwrap(),
-    )
+    Response::builder()
+        .status(StatusCode::OK)
+        .header(CONTENT_TYPE, ct)
+        .header(ACCESS_CONTROL_ALLOW_ORIGIN, HeaderValue::from_static("*"))
+        .body(body)
+        .unwrap_or_else(|_| {
+            Response::builder().status(StatusCode::INTERNAL_SERVER_ERROR).body(Vec::new()).unwrap()
+        })
 }
 
 fn not_found(message: &str) -> Response<Vec<u8>> {
@@ -102,4 +103,29 @@ fn internal_error(message: &str) -> Response<Vec<u8>> {
         .unwrap_or_else(|_| {
             Response::builder().status(StatusCode::INTERNAL_SERVER_ERROR).body(Vec::new()).unwrap()
         })
+}
+
+fn resolve_namespace_and_key(decoded_path: &str, expected_host: &str) -> (String, String) {
+    let expected_host_with_slash = format!("{expected_host}/");
+    let mut remainder = decoded_path.trim_start_matches('/');
+
+    if let Some(stripped) = remainder.strip_prefix("asset://") {
+        remainder = stripped;
+    }
+
+    if let Some(stripped) = remainder.strip_prefix("//") {
+        remainder = stripped;
+    }
+
+    if let Some(stripped) = remainder.strip_prefix(&expected_host_with_slash) {
+        remainder = stripped;
+    } else if let Some(stripped) = remainder.strip_prefix("localhost/") {
+        remainder = stripped;
+    }
+
+    remainder = remainder.trim_start_matches('/');
+    let mut segments = remainder.splitn(2, '/');
+    let namespace = segments.next().unwrap_or_default().to_string();
+    let key = segments.next().unwrap_or_default().to_string();
+    (namespace, key)
 }
